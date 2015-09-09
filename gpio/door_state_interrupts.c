@@ -8,6 +8,8 @@
 typedef int bool;
 #define CLOSED 1
 #define OPEN 0
+#define TRUE 1
+#define FALSE 0
 
 // Sleep duration (seconds)
 #define SLEEP_DURATION 1
@@ -38,8 +40,8 @@ void closeInterrupt(void) {
 int main(void) {
 	
 	FILE *fp = NULL;
-	time_t rawtime;
-	struct tm *timeinfo;
+	time_t rawTime;
+	struct tm *timeInfo;
 	
 	// sets up the wiringPi library
 	if (wiringPiSetupGpio() < 0) {
@@ -50,14 +52,14 @@ int main(void) {
   // set Pin 17/0 generate an interrupt on high-to-low transitions
   // and attach myInterrupt() to the interrupt
 	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_FALLING, &openInterrupt) < 0 ) {
-		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
+		fprintf (stderr, "Unable to setup ISR: %s\n", strerror(errno) );
 		return 1;
 	}
   
   // set Pin 17/0 generate an interrupt on high-to-low transitions
   // and attach myInterrupt() to the interrupt
 	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_RISING, &closeInterrupt) < 0 ) {
-		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
+		fprintf (stderr, "Unable to setup ISR: %s\n", strerror(errno) );
 		return 1;
 	}
 
@@ -70,7 +72,7 @@ int main(void) {
 		if(change == TRUE)
 		{
 			//open file for writing
-			fp = fopen("doorStatus.txt", "w")
+			fp = fopen("doorStatus.txt", "w");
 	
 			//check for errors opening the file
 			if (ifp == NULL)
@@ -84,15 +86,15 @@ int main(void) {
 			fclose(fp);
 		
 			//Print timestamp and door status to stdout (for logging)
-			time ( &rawtime );
-			timeinfo = localtime ( &rawtime );
+			time ( &rawTime );
+			timeinfo = localtime ( &rawTime );
 			if(status == CLOSED)
 			{
-				printf("%s - Door Closed\n")
+				printf("%s - Door Closed\n", asctime(timeinfo) );
 			}
 			else
 			{
-				printf("%s - Door Opened\n")
+				printf("%s - Door Opened\n", asctime(timeinfo) );
 			}
 			change = FALSE;
 		}
