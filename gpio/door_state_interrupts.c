@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include <wiringPi.h>
 
 typedef int bool;
@@ -22,14 +23,14 @@ volatile bool status = OPEN;
 volatile bool change = TRUE;
 
 // -------------------------------------------------------------------------
-// openInterrupt:  called every time an door opens
+// openInterrupt:  called every time the door opens
 void openInterrupt(void) {
    status = OPEN;
    change = TRUE;
 }
 
 // -------------------------------------------------------------------------
-// openInterrupt:  called every time an door opens
+// closeInterrupt:  called every time the door closes
 void closeInterrupt(void) {
 	status = CLOSED;
 	change = TRUE;
@@ -38,11 +39,11 @@ void closeInterrupt(void) {
 // -------------------------------------------------------------------------
 // main
 int main(void) {
-	
+
 	FILE *fp = NULL;
-	time_t rawTime;
-	struct tm *timeInfo;
-	
+	time_t rawtime;
+	struct tm *timeinfo;
+
 	// sets up the wiringPi library
 	if (wiringPiSetupGpio() < 0) {
 		fprintf (stderr, "Unable to setup wiringPi: %s\n", strerror (errno));
@@ -52,42 +53,41 @@ int main(void) {
   // set Pin 17/0 generate an interrupt on high-to-low transitions
   // and attach myInterrupt() to the interrupt
 	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_FALLING, &openInterrupt) < 0 ) {
-		fprintf (stderr, "Unable to setup ISR: %s\n", strerror(errno) );
+		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
 		return 1;
 	}
-  
+
   // set Pin 17/0 generate an interrupt on high-to-low transitions
   // and attach myInterrupt() to the interrupt
 	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_RISING, &closeInterrupt) < 0 ) {
-		fprintf (stderr, "Unable to setup ISR: %s\n", strerror(errno) );
+		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
 		return 1;
 	}
 
 	printf("Door status monitor is running...\n");
-	
-  // display counter value every second.
+
 	while(1)
 	{
-   	
+
 		if(change == TRUE)
 		{
 			//open file for writing
 			fp = fopen("doorStatus.txt", "w");
-	
+
 			//check for errors opening the file
-			if (ifp == NULL)
+			if (fp == NULL)
 			{
 				fprintf(stderr, "Can't open input file!\n");
 				return(1);
 			}
-				
-			//print status to the file
+
+			//print status to the file and close the stream
 			fprintf(fp, "%i", status);
 			fclose(fp);
-		
+
 			//Print timestamp and door status to stdout (for logging)
-			time ( &rawTime );
-			timeinfo = localtime ( &rawTime );
+			time ( &rawtime );
+			timeinfo = localtime ( &rawtime );
 			if(status == CLOSED)
 			{
 				printf("%s - Door Closed\n", asctime(timeinfo) );
@@ -96,9 +96,11 @@ int main(void) {
 			{
 				printf("%s - Door Opened\n", asctime(timeinfo) );
 			}
+
+			//Reset change flag
 			change = FALSE;
 		}
 	}
-	
+
 	return 0;
 }
