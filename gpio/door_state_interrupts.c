@@ -16,7 +16,7 @@ typedef int bool;
 #define SLEEP_DURATION 1
 
 // Use GPIO Pin 17, which is Pin 0 for wiringPi library
-#define BUTTON_PIN 0
+#define BUTTON_PIN 22
 
 
 volatile bool status = OPEN;
@@ -50,15 +50,18 @@ int main(void) {
 		return 1;
 	}
 
-  // set Pin 17/0 generate an interrupt on high-to-low transitions
-  // and attach myInterrupt() to the interrupt
+	// pull up resistor
+	pullUpDnControl (BUTTON_PIN, PUD_UP);
+
+	// set Pin 17/0 generate an interrupt on high-to-low transitions
+	// and attach myInterrupt() to the interrupt
 	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_FALLING, &openInterrupt) < 0 ) {
 		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
 		return 1;
 	}
 
-  // set Pin 17/0 generate an interrupt on high-to-low transitions
-  // and attach myInterrupt() to the interrupt
+	// set Pin 17/0 generate an interrupt on high-to-low transitions
+	// and attach myInterrupt() to the interrupt
 	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_RISING, &closeInterrupt) < 0 ) {
 		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
 		return 1;
