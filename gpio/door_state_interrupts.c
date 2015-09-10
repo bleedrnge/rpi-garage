@@ -12,17 +12,13 @@ typedef int bool;
 #define TRUE 1
 #define FALSE 0
 
-// Sleep duration (seconds)
-#define SLEEP_DURATION 1
-
-// Use GPIO Pin 17, which is Pin 0 for wiringPi library
+// Use GPIO Pin 22
 #define BUTTON_PIN 22
 
 volatile bool change = TRUE;
-volatile bool status = 2;
 
 // -------------------------------------------------------------------------
-// openInterrupt:  called every time the door opens
+// changeInterrupt:  called every time the door status changes
 void changeInterrupt(void) {
    change = TRUE;
 }
@@ -34,6 +30,7 @@ int main(void) {
 	FILE *fp = NULL;
 	time_t rawtime;
 	struct tm *timeinfo;
+	bool status;
 
 	// sets up the wiringPi library
 	if (wiringPiSetupGpio() < 0) {
@@ -41,7 +38,7 @@ int main(void) {
 		return 1;
 	}
 
-	// pull up resistor
+	// set up pull up resistor
 	pullUpDnControl (BUTTON_PIN, PUD_UP);
 
 	// set Pin 17/0 generate an interrupt on high-to-low transitions
