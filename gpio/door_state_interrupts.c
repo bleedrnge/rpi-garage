@@ -18,22 +18,13 @@ typedef int bool;
 // Use GPIO Pin 17, which is Pin 0 for wiringPi library
 #define BUTTON_PIN 22
 
-
-volatile bool status = OPEN;
 volatile bool change = TRUE;
+volatile bool status = 2;
 
 // -------------------------------------------------------------------------
 // openInterrupt:  called every time the door opens
-void openInterrupt(void) {
-   status = OPEN;
+void changeInterrupt(void) {
    change = TRUE;
-}
-
-// -------------------------------------------------------------------------
-// closeInterrupt:  called every time the door closes
-void closeInterrupt(void) {
-	status = CLOSED;
-	change = TRUE;
 }
 
 // -------------------------------------------------------------------------
@@ -55,14 +46,7 @@ int main(void) {
 
 	// set Pin 17/0 generate an interrupt on high-to-low transitions
 	// and attach myInterrupt() to the interrupt
-	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_FALLING, &openInterrupt) < 0 ) {
-		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
-		return 1;
-	}
-
-	// set Pin 17/0 generate an interrupt on high-to-low transitions
-	// and attach myInterrupt() to the interrupt
-	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_RISING, &closeInterrupt) < 0 ) {
+	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_BOTH, &changeInterrupt) < 0 ) {
 		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
 		return 1;
 	}
@@ -74,6 +58,9 @@ int main(void) {
 
 		if(change == TRUE)
 		{
+			//read the pin value
+			status = digitalRead(BUTTON_PIN);
+
 			//open file for writing
 			fp = fopen("doorStatus.txt", "w");
 
