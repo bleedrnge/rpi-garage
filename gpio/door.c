@@ -1,7 +1,7 @@
 #include <wiringPi.h>
 
 //pin to use for lights
-#define PIN 23
+#define PIN 1
 
 int main (void)
 {
