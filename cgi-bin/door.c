@@ -1,18 +1,16 @@
 #include <wiringPi.h>
-
-//pin to use for lights
-#define PIN 1
+#include "gpio_layout_definitions.h"
 
 int main (void)
 {
 	wiringPiSetup () ;
-	pinMode (PIN, OUTPUT) ;
+	pinMode (gpioDoor, OUTPUT) ;
 	
 	//enable relay, pause, disable relay, pause
-	digitalWrite (PIN, HIGH);
+	digitalWrite (gpioDoor, HIGH);
 	delay (500) ;
 	
-	digitalWrite (PIN, LOW);
+	digitalWrite (gpioDoor, LOW);
 	delay (500) ;
 	return 0 ;
 }

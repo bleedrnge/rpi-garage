@@ -5,15 +5,9 @@
 #include <time.h>
 #include <string.h>
 #include <wiringPi.h>
+#include "gpio_layout_definitions.h"
 
 typedef int bool;
-#define CLOSED 1
-#define OPEN 0
-#define TRUE 1
-#define FALSE 0
-
-// Use GPIO Pin 22
-#define BUTTON_PIN 22
 
 volatile bool change = TRUE;
 
@@ -39,11 +33,11 @@ int main(void) {
 	}
 
 	// set up pull up resistor
-	pullUpDnControl (BUTTON_PIN, PUD_UP);
+	pullUpDnControl (gpioReedSwitch, PUD_UP);
 
 	// set Pin 17/0 generate an interrupt on high-to-low transitions
 	// and attach myInterrupt() to the interrupt
-	if ( wiringPiISR (BUTTON_PIN, INT_EDGE_BOTH, &changeInterrupt) < 0 ) {
+	if ( wiringPiISR (gpioReedSwitch, INT_EDGE_BOTH, &changeInterrupt) < 0 ) {
 		fprintf (stderr, "Unable to setup ISR: %s\n", strerror (errno));
 		return 1;
 	}
@@ -56,7 +50,7 @@ int main(void) {
 		if(change == TRUE)
 		{
 			//read the pin value
-			status = digitalRead(BUTTON_PIN);
+			status = digitalRead(gpioReedSwitch);
 
 			//open file for writing
 			fp = fopen("doorStatus.txt", "w");

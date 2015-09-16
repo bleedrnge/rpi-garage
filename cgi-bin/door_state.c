@@ -2,13 +2,9 @@
 #include <wiringPi.h> // Include WiringPi library!
 #include <time.h>
 #include <unistd.h>
+#include "gpio_layout_definitions.h"
 
 typedef int bool;
-#define CLOSED 1
-#define OPEN 0
-
-// Pin number declarations. We're using the Broadcom chip pin numbers.
-const int swPin = 22; // Reed Switch - Broadcom pin 22, P1 pin 15
 
 int main(void)
 {
@@ -21,15 +17,15 @@ int main(void)
 
 	// Setup wiringPi:
 	wiringPiSetupGpio(); // Initialize wiringPi -- using Broadcom pin numbers
-	pinMode(swPin, INPUT);      // Set button as INPUT
-	pullUpDnControl (swPin, PUD_UP);  //pull up resistor
+	pinMode(gpioReedSwitch, INPUT);      // Set button as INPUT
+	pullUpDnControl (gpioReedSwitch, PUD_UP);  //pull up resistor
 
 	printf("Door status monitor is running...\n");
 
 	//loop forever
 	while(1)
 	{
-		if (digitalRead(swPin))
+		if (digitalRead(gpioReedSwitch))
 		{
 			//Door is closed
 			current = CLOSED;
